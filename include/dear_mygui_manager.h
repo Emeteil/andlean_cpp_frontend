@@ -24,6 +24,7 @@ class DearMyGuiManager
         ImGuiIO* io;
 
         void Initialize();
+        void SetupStyle();
         void SendToRender();
         void Destroy();
     public:
