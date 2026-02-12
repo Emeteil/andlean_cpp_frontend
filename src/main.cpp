@@ -91,6 +91,11 @@ int main()
                 ImGui::TextColored(ImVec4(1.0f, 0.8f, 0.4f, 1.0f), "%.6f", lastLocation.altitude);
                 ImGui::NextColumn();
 
+                ImGui::Text("Time:");
+                ImGui::NextColumn();
+                ImGui::TextColored(ImVec4(1.0f, 0.4f, 1.0f, 1.0f), "%lld", lastLocation.time);
+                ImGui::NextColumn();
+
                 ImGui::Columns(1);
             }
             ImGui::EndChild();

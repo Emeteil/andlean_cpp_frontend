@@ -100,7 +100,7 @@ bool DearMyGuiManager::MainHandler()
     // 3.0) Обработка event'ов (inputs, window resize, mouse moving, etc.);
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
-        std::cout << "Processing some event: "<< event.type << std::endl;
+        // std::cout << "Processing some event: "<< event.type << std::endl;
         ImGui_ImplSDL2_ProcessEvent(&event);
         if (event.type == SDL_QUIT)
             return false;
