@@ -19,6 +19,7 @@ find_package(Boost REQUIRED COMPONENTS system)
 include_directories(${THIRD_PARTY_DIR}/websocketpp)
 
 include_directories(${INCLUDE_DIR})
+include_directories(${THIRD_PARTY_DIR}/json)
 
 add_library(imgui STATIC
     ${THIRD_PARTY_DIR}/imgui/imgui.cpp
