@@ -25,6 +25,7 @@ void WebSocketClient::OnMessage(websocketpp::connection_hdl hdl, client::message
 
 WebSocketClient::WebSocketClient(std::string _uri)
 {
+    uri = _uri;
     Initialize();
 }
 
