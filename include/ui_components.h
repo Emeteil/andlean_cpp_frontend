@@ -1,0 +1,15 @@
+#pragma once
+
+#include "data_structures.h"
+#include <mutex>
+
+struct UIState
+{
+    bool showDataWindow = true;
+    bool showGraphWindow = true;
+    std::string selectedCellIdentity;
+};
+
+void DrawMenuBar(UIState& state);
+void DrawDataWindow(bool& open, UserData& user, std::mutex& mtx);
+void DrawGraphWindow(bool& open, std::vector<SignalData>& signals, std::string& selectedIdentity, std::mutex& mtx);
