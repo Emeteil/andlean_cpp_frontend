@@ -71,6 +71,16 @@ void DrawDataWindow(bool& open, UserData& user, std::mutex& mtx)
                     ImGui::TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f), "%d dBm", net.rsrp);
                     ImGui::NextColumn();
 
+                    ImGui::Text("RSRQ:");
+                    ImGui::NextColumn();
+                    ImGui::TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f), "%d dBm", net.rsrq);
+                    ImGui::NextColumn();
+
+                    ImGui::Text("RSSI:");
+                    ImGui::NextColumn();
+                    ImGui::TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f), "%d dBm", net.rssi);
+                    ImGui::NextColumn();
+
                     ImGui::Columns(1);
                     ImGui::TreePop();
                 }

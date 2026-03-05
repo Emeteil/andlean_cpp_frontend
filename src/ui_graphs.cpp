@@ -57,7 +57,7 @@ void DrawGraphWindow(bool& open, std::vector<SignalData>& signals, std::string& 
         {
             if (ImPlot::BeginPlot(label, ImVec2(-1, plotHeight)))
             {
-                ImPlot::SetupAxes("Time", "Value", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
+                ImPlot::SetupAxes("Time", "Value", ImPlotAxisFlags_AutoFit);
                 
                 for (const auto& sig : signals)
                 {

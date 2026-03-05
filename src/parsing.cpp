@@ -1,6 +1,7 @@
 #include "parsing.h"
 #include "json.hpp"
 #include <mutex>
+#include <algorithm>
 
 using json = nlohmann::json;
 
@@ -14,17 +15,16 @@ void ParseMobileNetworkData(const std::string& payload, UserData& currentUser, s
         {
             std::lock_guard<std::mutex> lock(dataMutex);
             
-            UserData user;
-            user.user = userKey;
+            currentUser.user = userKey;
             
             if (userData.contains("location_data"))
             {
                 auto& loc = userData["location_data"];
-                user.location.user = userKey;
-                user.location.latitude = loc["Latitude"];
-                user.location.longitude = loc["Longitude"];
-                user.location.altitude = loc["Altitude"];
-                user.location.time = loc["Time"];
+                currentUser.location.user = userKey;
+                currentUser.location.latitude = loc["Latitude"];
+                currentUser.location.longitude = loc["Longitude"];
+                currentUser.location.altitude = loc["Altitude"];
+                currentUser.location.time = loc["Time"];
             }
             
             if (userData.contains("mobile_network_data_list") && userData["mobile_network_data_list"].contains("MobileNetworks"))
@@ -45,9 +45,19 @@ void ParseMobileNetworkData(const std::string& payload, UserData& currentUser, s
                     netData.rssi = network["RSSI"];
                     netData.timingAdvance = network["TimingAdvance"];
                     netData.time = network["Time"];
-                    user.mobileNetworks.push_back(netData);
 
-                    bool found = false;
+                    auto it = std::find_if(currentUser.mobileNetworks.begin(), currentUser.mobileNetworks.end(),
+                        [&](const MobileNetworkData& current) {
+                            return current.cellIdentity == netData.cellIdentity;
+                        }
+                    );
+
+                    if (it != currentUser.mobileNetworks.end())
+                        *it = netData;
+                    else
+                        currentUser.mobileNetworks.push_back(netData);
+
+                    bool signalFound = false;
                     for (auto& signal : signalData)
                     {
                         if (signal.cellIdentity == netData.cellIdentity)
@@ -56,11 +66,12 @@ void ParseMobileNetworkData(const std::string& payload, UserData& currentUser, s
                             signal.rsrq_values.push_back(netData.rsrq);
                             signal.rssi_values.push_back(netData.rssi);
                             signal.timestamps.push_back(netData.time);
-                            found = true;
+                            signalFound = true;
                             break;
                         }
                     }
-                    if (!found)
+
+                    if (!signalFound)
                     {
                         SignalData newSignal;
                         newSignal.cellIdentity = netData.cellIdentity;
@@ -72,8 +83,6 @@ void ParseMobileNetworkData(const std::string& payload, UserData& currentUser, s
                     }
                 }
             }
-            
-            currentUser = user;
         }
     }
     catch (const json::exception& e) {}
