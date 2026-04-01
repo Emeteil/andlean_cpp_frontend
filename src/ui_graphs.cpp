@@ -68,15 +68,19 @@ void DrawGraphWindow(bool& open, std::vector<SignalData>& signals, std::string& 
 
                     if (sig.cellIdentity == selectedIdentity)
                     {
-                        ImPlot::SetNextLineStyle(color, 2.5f);
-                        ImPlot::PlotLine(sig.cellIdentity.c_str(), sig.timestamps.data(), values.data(), (int)sig.timestamps.size());
+                        ImPlotSpec spec;
+                        spec.LineColor = color;
+                        spec.LineWeight = 2.5f;
+                        ImPlot::PlotLine(sig.cellIdentity.c_str(), sig.timestamps.data(), values.data(), (int)sig.timestamps.size(), spec);
                     }
                     else
                     {
                         ImVec4 darkedColor = color;
                         darkedColor.w = 0.42f;
-                        ImPlot::SetNextLineStyle(darkedColor, 1.0f);
-                        ImPlot::PlotLine(sig.cellIdentity.c_str(), sig.timestamps.data(), values.data(), (int)sig.timestamps.size());
+                        ImPlotSpec spec;
+                        spec.LineColor = darkedColor;
+                        spec.LineWeight = 1.0f;
+                        ImPlot::PlotLine(sig.cellIdentity.c_str(), sig.timestamps.data(), values.data(), (int)sig.timestamps.size(), spec);
                     }
                 }
                 ImPlot::EndPlot();
