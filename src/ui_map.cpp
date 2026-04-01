@@ -10,16 +10,19 @@
 #include <cmath>
 #include "osm_tile_fetcher.h"
 #include "osm_tile_texture.h"
+#include "color_funcs.h"
 
 ImVec4 RsrpToColorImVec4(int rsrp)
 {
-    ImColor color = IM_COL32(0, 255, 0, 255);
+    float minRsrp = -120.0f;
+    float maxRsrp = -70.0f;
 
-    return ImVec4(
-        ((color >> IM_COL32_R_SHIFT) & 0xFF) / 255.0f,
-        ((color >> IM_COL32_G_SHIFT) & 0xFF) / 255.0f,
-        ((color >> IM_COL32_B_SHIFT) & 0xFF) / 255.0f,
-        ((color >> IM_COL32_A_SHIFT) & 0xFF) / 255.0f);
+    float t = (static_cast<float>(rsrp) - minRsrp) / (maxRsrp - minRsrp);
+    t = std::max(0.0f, std::min(1.0f, t));
+
+    RGB rgb = hsl2rgb(t * 0.333f, 1.0f, 0.5f);
+
+    return ImVec4(rgb.r / 255.0f, rgb.g / 255.0f, rgb.b / 255.0f, 0.3f);
 }
 
 void DrawMapWindow(bool &open, UserData &currentUser, std::mutex &mtx)
@@ -42,7 +45,7 @@ void DrawMapWindow(bool &open, UserData &currentUser, std::mutex &mtx)
         if (ImPlot::BeginPlot("##ImOsmMapPlot", ImVec2(-1, 0), ImPlotFlags_NoLegend | ImPlotFlags_Equal))
         {
             static std::map<std::string, OsmTileTexture> tileCache;
-            static OsmTileFetcher fetcher(30);
+            static OsmTileFetcher fetcher(25);
             static ImPlotRect lastLimits;
 
             ImPlotRect limits = ImPlot::GetPlotLimits();
@@ -141,7 +144,7 @@ void DrawMapWindow(bool &open, UserData &currentUser, std::mutex &mtx)
 
                 ImPlotSpec spec;
                 spec.Marker = ImPlotMarker_Circle;
-                spec.MarkerSize = 5.0f;
+                spec.MarkerSize = 6.5f;
                 spec.MarkerFillColor = fillColor;
                 spec.MarkerLineColor = fillColor;
 
