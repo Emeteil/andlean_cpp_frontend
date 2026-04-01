@@ -21,6 +21,9 @@ include_directories(${THIRD_PARTY_DIR}/websocketpp)
 include_directories(${INCLUDE_DIR})
 include_directories(${THIRD_PARTY_DIR}/json)
 
+include(FindPkgConfig)
+pkg_check_modules(STB REQUIRED stb)
+
 add_library(imgui STATIC
     ${THIRD_PARTY_DIR}/imgui/imgui.cpp
     ${THIRD_PARTY_DIR}/imgui/imgui_draw.cpp
@@ -44,7 +47,8 @@ target_compile_options(implot PRIVATE -fPIC)
 
 file(GLOB SOURCE_LIB "src/*.cpp")
 add_library(MY_LIB ${SOURCE_LIB})
-target_include_directories(MY_LIB PRIVATE ${THIRD_PARTY_DIR}/imgui ${THIRD_PARTY_DIR}/implot)
+target_include_directories(MY_LIB PRIVATE ${THIRD_PARTY_DIR}/imgui ${THIRD_PARTY_DIR}/implot ${STB_INCLUDE_DIRS})
 
 add_executable(main ${SRC_DIR}/main.cpp)
-target_link_libraries(main PRIVATE MY_LIB imgui implot ${SDL2_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(main PRIVATE MY_LIB imgui implot curl ${SDL2_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${Boost_LIBRARIES} ${STB_LIBRARIES})
+target_include_directories(main PRIVATE ${STB_INCLUDE_DIRS})

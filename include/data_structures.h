@@ -27,10 +27,17 @@ struct LocationData {
     long long time;
 };
 
+struct MapPoint {
+    double latitude;
+    double longitude;
+    int rsrp = 0;
+};
+
 struct UserData {
     std::string user;
     std::vector<MobileNetworkData> mobileNetworks;
     LocationData location;
+    std::vector<MapPoint> mapPoints;
 };
 
 struct SignalData {

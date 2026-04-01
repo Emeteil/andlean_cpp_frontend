@@ -29,6 +29,7 @@ void ParseMobileNetworkData(const std::string& payload, UserData& currentUser, s
             
             if (userData.contains("mobile_network_data_list") && userData["mobile_network_data_list"].contains("MobileNetworks"))
             {
+                int maxRSRP = -1000;
                 for (auto& network : userData["mobile_network_data_list"]["MobileNetworks"])
                 {
                     MobileNetworkData netData;
@@ -45,6 +46,9 @@ void ParseMobileNetworkData(const std::string& payload, UserData& currentUser, s
                     netData.rssi = network["RSSI"];
                     netData.timingAdvance = network["TimingAdvance"];
                     netData.time = network["Time"];
+
+                    if (netData.rsrp > maxRSRP)
+                        maxRSRP = netData.rsrp;
 
                     auto it = std::find_if(currentUser.mobileNetworks.begin(), currentUser.mobileNetworks.end(),
                         [&](const MobileNetworkData& current) {
@@ -82,6 +86,12 @@ void ParseMobileNetworkData(const std::string& payload, UserData& currentUser, s
                         signalData.push_back(newSignal);
                     }
                 }
+
+                MapPoint point;
+                point.latitude = currentUser.location.latitude;
+                point.longitude = currentUser.location.longitude;
+                point.rsrp = maxRSRP;
+                currentUser.mapPoints.push_back(point);
             }
         }
     }

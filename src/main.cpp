@@ -9,6 +9,7 @@
 #include "data_structures.h"
 #include "parsing.h"
 #include "ui_widget.h"
+#include "mercator_projection.h"
 
 int main()
 {
