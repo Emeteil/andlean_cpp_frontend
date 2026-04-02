@@ -42,7 +42,7 @@ void DrawMapWindow(bool &open, UserData &currentUser, std::mutex &mtx)
             init = true;
         }
 
-        if (ImPlot::BeginPlot("##ImOsmMapPlot", ImVec2(-1, 0), ImPlotFlags_NoLegend | ImPlotFlags_Equal))
+        if (ImPlot::BeginPlot("##ImOsmMapPlot", ImVec2(-1, -1), ImPlotFlags_NoLegend | ImPlotFlags_Equal))
         {
             static std::map<std::string, OsmTileTexture> tileCache;
             static OsmTileFetcher fetcher(25);
