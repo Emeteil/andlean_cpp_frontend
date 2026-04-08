@@ -11,6 +11,7 @@
 #include "osm_tile_fetcher.h"
 #include "osm_tile_texture.h"
 #include "color_funcs.h"
+#include <iostream>
 
 ImVec4 RsrpToColorImVec4(int rsrp)
 {
@@ -58,40 +59,12 @@ void DrawMapWindow(bool &open, UserData &currentUser, std::mutex &mtx)
                 lastLimits = limits;
             }
 
-            int zoom;
-            if (limits.X.Max - limits.X.Min < 0.01)
-                zoom = 18;
-            else if (limits.X.Max - limits.X.Min < 0.02)
-                zoom = 17;
-            else if (limits.X.Max - limits.X.Min < 0.05)
-                zoom = 16;
-            else if (limits.X.Max - limits.X.Min < 0.1)
-                zoom = 15;
-            else if (limits.X.Max - limits.X.Min < 0.2)
-                zoom = 14;
-            else if (limits.X.Max - limits.X.Min < 0.5)
-                zoom = 13;
-            else if (limits.X.Max - limits.X.Min < 1)
-                zoom = 12;
-            else if (limits.X.Max - limits.X.Min < 2)
-                zoom = 11;
-            else if (limits.X.Max - limits.X.Min < 5)
-                zoom = 10;
-            else if (limits.X.Max - limits.X.Min < 10)
-                zoom = 9;
-            else if (limits.X.Max - limits.X.Min < 20)
-                zoom = 8;
-            else if (limits.X.Max - limits.X.Min < 50)
-                zoom = 7;
-            else if (limits.X.Max - limits.X.Min < 100)
-                zoom = 6;
-            else if (limits.X.Max - limits.X.Min < 200)
-                zoom = 5;
-            else
-                zoom = 4;
+            int zoom = std::clamp(static_cast<int>(-std::log(limits.X.Max - limits.X.Min) * 1.3 + 12), 4, 18);
 
             static int lastZoom = zoom;
-            if (zoom != lastZoom) {
+            if (zoom != lastZoom)
+            {
+                std::cout << "Zoom: " << zoom << std::endl;
                 fetcher.ClearJobs();
                 for (auto& entry : tileCache)
                     entry.second.SetFetching(false);
@@ -103,6 +76,7 @@ void DrawMapWindow(bool &open, UserData &currentUser, std::mutex &mtx)
             int minY = MercatorProjection::ConvertEPSG3857ToTileY(limits.Y.Max, zoom);
             int maxY = MercatorProjection::ConvertEPSG3857ToTileY(limits.Y.Min, zoom);
 
+            if (limits.X.Max - limits.X.Min < 1200)
             for (int tileX = minX; tileX <= maxX; tileX++)
             {
                 for (int tileY = minY; tileY <= maxY; tileY++)
@@ -115,7 +89,14 @@ void DrawMapWindow(bool &open, UserData &currentUser, std::mutex &mtx)
                     {
                         OsmTileTexture& texture = tileCache[tileId];
                         texture.SetFetching(true);
-                        fetcher.Fetch({{zoom, tileX, tileY}}, [&texture](const OsmTileCoord& c, const std::vector<std::byte>& blob) {
+
+                        int count = 1 << zoom;
+                        int reqTileX = tileX % count;
+                        int reqTileY = tileY % count;
+                        if (reqTileX < 0) reqTileX += count;
+                        if (reqTileY < 0) reqTileY += count;
+
+                        fetcher.Fetch({{zoom, reqTileX, reqTileY}}, [&texture](const OsmTileCoord& c, const std::vector<std::byte>& blob) {
                             texture.StbLoad(blob);
                         });
                     }
