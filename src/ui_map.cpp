@@ -59,7 +59,7 @@ void DrawMapWindow(bool &open, UserData &currentUser, std::mutex &mtx)
                 lastLimits = limits;
             }
 
-            int zoom = std::clamp(static_cast<int>(-std::log(limits.X.Max - limits.X.Min) * 1.3 + 12), 4, 18);
+            int zoom = std::clamp(static_cast<int>(-std::log(limits.X.Max - limits.X.Min) * 1.3 + 12), 4, 19);
 
             static int lastZoom = zoom;
             if (zoom != lastZoom)
