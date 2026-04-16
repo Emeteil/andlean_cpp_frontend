@@ -5,11 +5,11 @@
 #include <thread>
 
 #include "dear_mygui_manager.h"
-#include "websocket_client.h"
-#include "data_structures.h"
-#include "parsing.h"
-#include "ui_widget.h"
-#include "mercator_projection.h"
+#include "network/websocket_client.h"
+#include "core/data_structures.h"
+#include "core/parsing.h"
+#include "ui/ui_widget.h"
+#include "core/mercator_projection.h"
 
 int main()
 {

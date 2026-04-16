@@ -45,10 +45,20 @@ target_include_directories(implot PUBLIC ${THIRD_PARTY_DIR}/implot)
 target_link_libraries(implot PRIVATE imgui)
 target_compile_options(implot PRIVATE -fPIC)
 
-file(GLOB SOURCE_LIB "src/*.cpp")
-add_library(MY_LIB ${SOURCE_LIB})
-target_include_directories(MY_LIB PRIVATE ${THIRD_PARTY_DIR}/imgui ${THIRD_PARTY_DIR}/implot ${STB_INCLUDE_DIRS})
+file(GLOB_RECURSE LIB_SOURCES 
+    "src/core/*.cpp"
+    "src/ui/*.cpp"
+    "src/network/*.cpp"
+    "src/dear_mygui_manager.cpp"
+)
+add_library(MY_LIB ${LIB_SOURCES})
+target_include_directories(MY_LIB PUBLIC ${INCLUDE_DIR})
+target_include_directories(MY_LIB PRIVATE 
+    ${THIRD_PARTY_DIR}/imgui 
+    ${THIRD_PARTY_DIR}/implot 
+    ${STB_INCLUDE_DIRS}
+)
 
 add_executable(main ${SRC_DIR}/main.cpp)
 target_link_libraries(main PRIVATE MY_LIB imgui implot curl ${SDL2_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${Boost_LIBRARIES} ${STB_LIBRARIES})
-target_include_directories(main PRIVATE ${STB_INCLUDE_DIRS})
+target_include_directories(main PRIVATE ${INCLUDE_DIR} ${STB_INCLUDE_DIRS})

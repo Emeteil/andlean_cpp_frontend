@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "color_funcs.h"
+#include "core/color_funcs.h"
 
 /*
  * Converts an RGB color value to HSL. Conversion formula

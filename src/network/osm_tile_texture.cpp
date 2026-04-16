@@ -1,4 +1,4 @@
-#include "osm_tile_texture.h"
+#include "network/osm_tile_texture.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>

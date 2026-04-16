@@ -1,5 +1,5 @@
-#include "ui_widget.h"
-#include "ui_components.h"
+#include "ui/ui_widget.h"
+#include "ui/ui_components.h"
 #include <imgui.h>
 
 void CreateMobileNetworkWidget(UserData& currentUser, std::mutex& dataMutex, std::vector<SignalData>& signalData)

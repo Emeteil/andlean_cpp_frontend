@@ -1,4 +1,4 @@
-#include "ui_components.h"
+#include "ui/ui_components.h"
 #include <imgui.h>
 
 void DrawDataWindow(bool& open, UserData& user, std::mutex& mtx)

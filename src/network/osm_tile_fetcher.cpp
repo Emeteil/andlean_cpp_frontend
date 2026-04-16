@@ -1,4 +1,4 @@
-#include "osm_tile_fetcher.h"
+#include "network/osm_tile_fetcher.h"
 #include <curl/curl.h>
 #include <filesystem>
 #include <fstream>

@@ -1,5 +1,5 @@
-#include "ui_components.h"
-#include "mercator_projection.h"
+#include "ui/ui_components.h"
+#include "core/mercator_projection.h"
 #include <imgui.h>
 #include <implot.h>
 #include <vector>
@@ -8,9 +8,9 @@
 #include <map>
 #include <memory>
 #include <cmath>
-#include "osm_tile_fetcher.h"
-#include "osm_tile_texture.h"
-#include "color_funcs.h"
+#include "network/osm_tile_fetcher.h"
+#include "network/osm_tile_texture.h"
+#include "core/color_funcs.h"
 #include <iostream>
 
 ImVec4 RsrpToColorImVec4(int rsrp)
