@@ -9,5 +9,5 @@ void CreateMobileNetworkWidget(UserData& currentUser, std::mutex& dataMutex, std
     DrawMenuBar(state);
     DrawDataWindow(state.showDataWindow, currentUser, dataMutex);
     DrawGraphWindow(state.showGraphWindow, signalData, state.selectedCellIdentity, dataMutex);
-    DrawMapWindow(state.showGraphWindow, currentUser, dataMutex);
+    DrawMapWindow(state.showMapWindow, currentUser, dataMutex, signalData);
 }

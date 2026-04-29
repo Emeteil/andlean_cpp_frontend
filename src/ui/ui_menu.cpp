@@ -9,6 +9,7 @@ void DrawMenuBar(UIState& state)
         {
             ImGui::MenuItem("Data Information", nullptr, &state.showDataWindow);
             ImGui::MenuItem("Signal Graphs", nullptr, &state.showGraphWindow);
+            ImGui::MenuItem("Map", nullptr, &state.showMapWindow);
             ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();

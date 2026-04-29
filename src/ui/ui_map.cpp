@@ -12,26 +12,50 @@
 #include "network/osm_tile_texture.h"
 #include "core/color_funcs.h"
 #include <iostream>
+#include <thread>
+#include <atomic>
+#include "network/db_fetcher.h"
 
-ImVec4 RsrpToColorImVec4(int rsrp)
+#include "ui/ui_heatmap.h"
+
+enum class MapVisualizationMode
 {
-    float minRsrp = -120.0f;
-    float maxRsrp = -70.0f;
+    ScatterPlot,
+    HeatMap,
+    None
+};
 
-    float t = (static_cast<float>(rsrp) - minRsrp) / (maxRsrp - minRsrp);
-    t = std::max(0.0f, std::min(1.0f, t));
-
-    RGB rgb = hsl2rgb(t * 0.333f, 1.0f, 0.5f);
-
-    return ImVec4(rgb.r / 255.0f, rgb.g / 255.0f, rgb.b / 255.0f, 0.3f);
-}
-
-void DrawMapWindow(bool &open, UserData &currentUser, std::mutex &mtx)
+void DrawMapWindow(bool &open, UserData &currentUser, std::mutex &mtx, std::vector<SignalData>& signals)
 {
     if (!open) return;
 
     if (ImGui::Begin("Map", &open, ImGuiWindowFlags_MenuBar))
     {
+        static std::atomic<bool> is_db_loading{false};
+
+        ImGui::BeginDisabled(is_db_loading);
+        if (ImGui::Button("Load from DB"))
+        {
+            is_db_loading = true;
+            std::thread(FetchDataFromDBThread, &currentUser, &mtx, &is_db_loading).detach();
+        }
+        ImGui::EndDisabled();
+
+        ImGui::SameLine();
+        
+        static MapVisualizationMode currentMode = MapVisualizationMode::ScatterPlot;
+        const char* modes[] = { "Scatter Plot", "Heat Map", "None" };
+        int modeIdx = static_cast<int>(currentMode);
+        static bool showMapLayer = true;
+        ImGui::SetNextItemWidth(150);
+        if (ImGui::Combo("  ", &modeIdx, modes, IM_ARRAYSIZE(modes)))
+        {
+            currentMode = static_cast<MapVisualizationMode>(modeIdx);
+        }
+
+        ImGui::SameLine();
+        ImGui::Checkbox(" ", &showMapLayer);
+
         std::lock_guard<std::mutex> lock(mtx);
 
         static bool init = false;
@@ -76,7 +100,7 @@ void DrawMapWindow(bool &open, UserData &currentUser, std::mutex &mtx)
             int minY = MercatorProjection::ConvertEPSG3857ToTileY(limits.Y.Max, zoom);
             int maxY = MercatorProjection::ConvertEPSG3857ToTileY(limits.Y.Min, zoom);
 
-            if (limits.X.Max - limits.X.Min < 1200)
+            if (showMapLayer && limits.X.Max - limits.X.Min < 1200)
             for (int tileX = minX; tileX <= maxX; tileX++)
             {
                 for (int tileY = minY; tileY <= maxY; tileY++)
@@ -116,21 +140,29 @@ void DrawMapWindow(bool &open, UserData &currentUser, std::mutex &mtx)
                 }
             }
 
-            for (size_t i = 0; i < currentUser.mapPoints.size(); i++)
+            if (currentMode == MapVisualizationMode::ScatterPlot)
             {
-                const auto &point = currentUser.mapPoints[i];
-                double x = MercatorProjection::ToEPSG3857_X(point.longitude);
-                double y = MercatorProjection::ToEPSG3857_Y(point.latitude);
-                ImVec4 fillColor = RsrpToColorImVec4(point.rsrp);
+                for (size_t i = 0; i < currentUser.mapPoints.size(); i++)
+                {
+                    const auto &point = currentUser.mapPoints[i];
+                    double x = MercatorProjection::ToEPSG3857_X(point.longitude);
+                    double y = MercatorProjection::ToEPSG3857_Y(point.latitude);
+                    ImVec4 fillColor = RsrpToColorImVec4(point.rsrp);
 
-                ImPlotSpec spec;
-                spec.Marker = ImPlotMarker_Circle;
-                spec.MarkerSize = 6.5f;
-                spec.MarkerFillColor = fillColor;
-                spec.MarkerLineColor = fillColor;
+                    ImPlotSpec spec;
+                    spec.Marker = ImPlotMarker_Circle;
+                    spec.MarkerSize = 6.5f;
+                    spec.MarkerFillColor = fillColor;
+                    spec.MarkerLineColor = fillColor;
 
-                std::string label = "Point_" + std::to_string(i);
-                ImPlot::PlotScatter(label.c_str(), &x, &y, 1, spec);
+                    std::string label = "Point_" + std::to_string(i);
+                    ImPlot::PlotScatter(label.c_str(), &x, &y, 1, spec);
+                }
+            }
+            else if (currentMode == MapVisualizationMode::HeatMap)
+            {
+                static HeatmapRenderer heatmapRenderer;
+                heatmapRenderer.UpdateAndDraw(currentUser.mapPoints);
             }
 
             ImPlot::EndPlot();
